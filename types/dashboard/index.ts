@@ -1,13 +1,32 @@
-import { date } from "yup";
-import { useFetch  } from "nuxt/dist/app/composables";
-
-type covidAll = {
-    cases : number;
-    deaths : number;
-    recovered : number;
+export type totalCovidType = {
+    cases?: number;
+    todayCases?: number;
+    deaths?: number;
+    todayDeaths?: number;
+    recovered?: number;
+    todayRecovered?: number;
+    active?: number;
+    critical?: number;
+    casesPerOneMillion?: number;
+    deathsPerOneMillion?: number;
+    tests?: number;
+    testsPerOneMillion?: number;
+    population: number;
+    continent: string;
+    activePerOneMillion: number;
+    recoveredPerOneMillion: number;
+    criticalPerOneMillion: number;
+    affectedCountries: number;
     
 };
-type ReportCovidByContinent = {
+export type historicalAllType = {
+    cases : Record<string, number>
+    deaths : Record<string, number>
+    recovered : Record<string, number>
+    
+};
+
+export type continentsType = {
     [index: string]: {
         cases: number;
         todayCases: number;
@@ -29,20 +48,9 @@ type ReportCovidByContinent = {
     }
 
 };
-type casesThisYear = {
-    [index: string]: {
-        date:number;
-    }
-}
 
-type totalCases = {
-    [index: string]: {
-        date:number;
-    }
-}
-
-type byCountries = {
-    [index: string]: {
+export type countriesType = {
+   
         updated: number,
         country: string,
         countryInfo: {
@@ -73,8 +81,20 @@ type byCountries = {
         activePerOneMillion: number,
         recoveredPerOneMillion: number,
         criticalPerOneMillion: number
-  }
+  
+}
+export type casesThisYear = {
+    [index: string]: {
+        date:number;
+    }
+}
+
+export type totalCases = {
+    [index: string]: {
+        date:number;
+    }
 }
 
 
-export type { covidAll,ReportCovidByContinent,casesThisYear,totalCases,byCountries }
+
+// export type { covidAll,ReportCovidByContinent,casesThisYear,totalCases,byCountries }

@@ -1,57 +1,39 @@
 <script setup lang="ts">
-
-import { ref , watch } from "vue";
-import { computed } from "vue";
+import { ref , watch,computed  } from "vue";
 import { useTheme } from "vuetify";
-import { arrTTC } from '@/data/dashboard/dashboardData';
-import { number } from "yup/lib/locale";
-// import * as dayjs from 'dayjs'
+import ApexCharts from 'apexcharts'
+import axios from "axios";
+import { fetchHistoricalAll,} from '@/server/apiFetch'
+import { transformHistoricalAll } from '@/data/dashboard/dashboardData';
+
 
 const theme = useTheme();
 const primary = theme.current.value.colors.primary;
 const secondary = theme.current.value.colors.secondary;
 const warning = theme.current.value.colors.warning;
+
 const selectMonth = ref("January");
 const itemsMonth = ref(["January", "February", "March", "April", "May", "June", "July",
     "August", "September", "October", "November", "December"]);
 const selectYears = ref("ALL");
 const itemsYears = ref(["ALL","2020", "2021", "2023"]);
 
+const chartSeries = ref<any>([])
+const filteredSeries = ref<any>([])
 
-const chartOptions = computed(() => {
-  return {
- 
-    series: [{
-              name: "Tolal Covid Cases",
-              data: arrTTC[0],
-              // format: localeString('en'),
-              
-            },
-            
-            {
-              name: "Recovered Cases",
-              data: arrTTC[1],
-            },
-            {
-              name: 'Deaths Cases',
-              data: arrTTC[2],
-            }
-          ],
-    chartOptions: {
-      
-      chart: {
+/* Chart Options*/
+const chartOptions = ref<any>({
+  chart: {
         id: 'area-datetime',
         type: 'area',
-        height: 400,
+        height: 500,
         // type: 'line',
         zoom: {
-          enabled: true,
+          enabled: false,
           autoScaleYaxis: true,
         },
         
       },
-      
-      
       dataLabels: {
         enabled: false
       },
@@ -60,14 +42,15 @@ const chartOptions = computed(() => {
         curve: 'straight',
         dashArray: [0, 8, 5]
       },
-    
+ 
       legend: {
         tooltipHoverFormatter: function(val:number, opts:any) {
-          return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] + ''
+          return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex].toLocaleString('en')
         },
+
         position: 'top',
         horizontalAlign: 'left',
-        offsetY: -5
+        offsetY: 10
         
       },
       markers: {
@@ -79,9 +62,9 @@ const chartOptions = computed(() => {
       xaxis: {
         yAxisIndex: 0,
         type: 'datetime',
-        
-        categories: arrTTC[3],
+        categories: [],
         tickAmount: 15,
+
         offsetX: 0,
         label: {
                   show: true,
@@ -93,8 +76,11 @@ const chartOptions = computed(() => {
                 }
       },
       yaxis: {
+
+        
         title: {
-            text: 'Total Coronavirus Cases'
+          offsetX: 5,
+            text: 'Total Cases'
           },
         tickAmount: 8,
         logBase: 10,
@@ -110,94 +96,88 @@ const chartOptions = computed(() => {
           {
             title: {
               formatter: function (val:number) {
-                return val 
+                return (val).toLocaleString('en');
               }
             }
           },
           {
             title: {
               formatter: function (val:number) {
-                return val
+                return (val).toLocaleString('en');
               }
             }
           },
           {
             title: {
               formatter: function (val:number) {
-                return val;
+                return (val).toLocaleString('en');
               }
             }
           }
         ]
       },
-      
-      grid: {
-        borderColor: '#f1f1f1',
-      }
-    },
-    fill: {
-              type: 'gradient',
-              gradient: {
-                shadeIntensity: 1,
-                opacityFrom: 0.7,
-                opacityTo: 0.9,
-                stops: [0, 100]
-              }
-            },    
-}
 });
 // console.log(chartOptions.value.chartOptions.xaxis);
+onMounted(async () => {
+  try {
+  const historicalAllResponse = await fetchHistoricalAll();
+  const historicalAllCofigURL = historicalAllResponse.config.url;
+  const response = await axios.get(historicalAllCofigURL+'/all?lastdays=all');
+  const historicalAllData = response.data
+  const transformed = transformHistoricalAll(historicalAllData);
 
-// chartOptions.chartOptions.value = 
+  const cases = Object.values(transformed[0]).map((item,index) => {
+    return [item.timeline,item.data]
+  });
+  const deaths = Object.values(transformed[1]).map((item,index) => {
+    return [item.timeline,item.data]
+  });
+  const recovered = Object.values(transformed[2]).map((item,index) => {
+    return [item.timeline,item.data]
+  });
+  // console.log(cases,deaths ,recovered);
+  
+  chartSeries.value = [
+    {
+      name:"Cases",
+      data: cases
+    },
+
+    {
+      name:"Recovered",
+      data: recovered
+    },
+    {
+      name:"Deaths",
+      data: deaths
+    },
+  ]
+  } catch (error) {
+    console.error('Error fetching Total COVID-19 data:', error);
+  }
+
+});
+
 
 </script>
 <template>
   <v-card elevation="10" class="withbg">
     <v-card-item>
       <div class="d-sm-flex align-center justify-space-between pt-sm-2">
-        <div><v-card-title class="text-h5">Total Cases</v-card-title></div>
-        <div class="d-sm-flex align-center justify-content-end pt-sm-2">
-        <!-- <div class="my-sm-0 my-2">
-          <v-select
-            v-model="selectMonth"
-            :items="itemsMonth"
-            variant="outlined"
-            density="compact"
-            hide-details
-            :class="{active: selection==='January'}"
+        <v-card-title class="text-h5">Overview Total Coronavirus Cases </v-card-title>
 
-          ></v-select>
-        </div> -->
-    
-        <!-- <pre>Selected : {{ selectMonth }}</pre> -->
-        <!-- <div class="my-sm-0 my-2">
-        
-          <v-select
-            on-click="updateData()"
-            v-model="selectYears"
-            :items="itemsYears"
-            variant="outlined"
-            density="compact"
-            hide-details
-          ></v-select>
-          
-        </div> -->
-        </div>
       </div>
 
       <div class="mt-6">
        
         <div id="chart-timeline">
         <apexchart
-  
           type="area"
-          height="445px"
-          :options="chartOptions.chartOptions"
-          :series="chartOptions.series"
-          :ref="chartOptions.chartOptions.chart"
-    
-        >
-        </apexchart></div>
+          height="510px"
+          :options="chartOptions" 
+          :series="chartSeries"
+        ></apexchart>
+      </div>
       </div>
     </v-card-item>
   </v-card>

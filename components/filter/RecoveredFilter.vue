@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {  ref, onMounted,computed } from "vue";
-import ApexCharts from 'apexcharts';
 import {  fetchHistoricalData } from '@/services/covidService';
 import { useTheme } from "vuetify";
 

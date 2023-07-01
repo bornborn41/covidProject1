@@ -35,6 +35,7 @@ const fetchData = async () => {
     console.error('Error fetching COVID-19 data:', error);
   }
 };
+console.log(data.value);
 
 fetchData();
 
@@ -82,7 +83,7 @@ const formatDate = (date: string) => {
             <!-- <v-btn @click="filterOneMonth">Filter 1 Month</v-btn> -->
            
        
-    <div class="d-sm-flex align-center justify-space-between pt-sm-2">
+    <div class="d-sm-flex align-center justify-space-between">
       <v-select 
             v-model="selectedMonth"
             :items= uniqueMonths

@@ -1,8 +1,40 @@
 <script setup lang="ts">
-import { dataContinent } from '@/data/dashboard/dashboardData';
-import { number } from 'yup';
+import {fetchContinents} from '@/server/apiFetch'
+import { transformContinentsData } from '@/data/dashboard/dashboardData';
+import { ContinentsType } from '@/types/dashboard/index'
+
 const select = ref("All");
 const items = ref(["All","Europe", "North America", "Asia", "South America", "Africa" ,"Oceania"]);
+const tableRows = ref<ContinentsType[]>([]);
+const tableColumns = [
+    { field: 'id', header: 'ID' },
+    { field: 'continent', header: 'Continent' },
+    { field: 'population', header: 'Population' },
+    { field: 'cases', header: 'Toltal Cases' },
+    { field: 'new_cases', header: 'New Cases' },
+    { field: 'deaths', header: 'Toltal Deaths' },
+    { field: 'new_deaths', header: 'New Deaths' },
+    { field: 'recovered', header: 'Toltal Recovered' },
+    { field: 'new_recovered', header: 'New Recovered' },
+    { field: 'active_cases', header: 'Active Cases' },
+    { field: 'serious_critical', header: 'Serious Critical' },
+]
+onMounted(async () => {
+  await fetchData();
+});
+
+async function fetchData() {
+  try {
+    const data = await fetchContinents();
+    const transformedData = transformContinentsData(data);
+    tableRows.value = transformedData;
+    
+  } catch (error) {
+    console.error('Error fetching historical data:', error);
+  }
+}
+console.log(tableRows);
+
 </script>
 <template>
     <v-card elevation="10" class="">
@@ -14,8 +46,8 @@ const items = ref(["All","Europe", "North America", "Asia", "South America", "Af
         <v-table class="month-table">
             <thead>
                 <tr>
-                    <th class="text-subtitle-1 font-weight-bold">#</th>
-                    <th class="text-subtitle-1 font-weight-bold">Continent</th>
+                    <th  v-for="(item,index) in tableColumns" :key="item.header" class="text-subtitle-1 font-weight-bold">{{item.header}}</th>
+                    <!-- <th class="text-subtitle-1 font-weight-bold">Continent</th>
                     <th class="text-subtitle-1 font-weight-bold">Population</th>
                     <th class="text-subtitle-1 font-weight-bold">Total Cases</th>
                     <th class="text-subtitle-1 font-weight-bold">New Cases</th>
@@ -24,26 +56,26 @@ const items = ref(["All","Europe", "North America", "Asia", "South America", "Af
                     <th class="text-subtitle-1 font-weight-bold">Total Recovered</th>
                     <th class="text-subtitle-1 font-weight-bold">New Recovered</th>
                     <th class="text-subtitle-1 font-weight-bold">Active Cases</th>
-                    <th class="text-subtitle-1 font-weight-bold">Serious Critical</th>
+                    <th class="text-subtitle-1 font-weight-bold">Serious Critical</th> -->
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(item,key) in dataContinent[0]" :key="item.continent" class="month-item">
+                <tr v-for="(item,index) in tableRows[0]" :key="item.continent" class="month-item">
                     <td>
-                        <p class="text-15 font-weight-medium">{{key+1}}</p>
+                        <p class="text-15 font-weight-medium">{{index+1}}</p>
                     </td>
                     <td>
-                         <h6 class="text-h6 text-subtitle-1 font-weight-bold">{{ item.continent }}</h6>
+                         <h6 class="text-h6 text-subtitle-1 font-weight-bold">{{item.continent}}</h6>
                        
                     </td>
-                    
+                    <td>
+                        <h6 class="text-body-1 font-weight-bold text-muted">{{item.population.toLocaleString('en')}}</h6>
+                    </td>
                 
                     <td>
-                        <h6 class="text-body-1 text-muted">{{ item.population.toLocaleString('en') }}</h6>
+                        <h6 class="text-body-1 text-muted">{{item.cases.toLocaleString('en')}}</h6>
                     </td>
-                    <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium">{{ item.cases.toLocaleString('en') }}</h6>
-                    </td>
+
                     <td v-if="item.todayCases > 0 ">
                         <v-chip  :class="'text-body-1  bg-primary'" color="white"  size="small" >+{{ item.todayCases.toLocaleString('en') }}</v-chip>
                        
@@ -52,9 +84,9 @@ const items = ref(["All","Europe", "North America", "Asia", "South America", "Af
                         <h6 class="text-body-1 text-muted">{{ item.todayCases.toLocaleString('en') }}</h6>
                     </td>
                     <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium">{{ item.deaths.toLocaleString('en') }}</h6>
+                        <h6 class="text-body-1 text-muted font-weight-medium">{{item.deaths.toLocaleString('en')}}</h6>
                     </td>
-                    <td v-if="item.todayCases > 1 ">
+                    <td v-if="item.todayDeaths > 0 ">
                         <v-chip  :class="'text-body-1  bg-error'" color="white"  size="small" >+{{ item.todayDeaths.toLocaleString('en') }}</v-chip>
                        
                     </td>
@@ -62,21 +94,23 @@ const items = ref(["All","Europe", "North America", "Asia", "South America", "Af
                         <h6 class="text-body-1 text-muted">{{ item.todayDeaths.toLocaleString('en') }}</h6>
                     </td>
                     <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium">{{ item.recovered.toLocaleString('en') }}</h6>
+                        <h6 class="text-body-1 text-muted font-weight-medium">{{item.recovered.toLocaleString('en')}}</h6>
                     </td>
-                    <td v-if="item.todayCases > 0">
-                        <v-chip  :class="'text-body-1 bg-success'" color="white"  size="small" >+{{ item.todayRecovered.toLocaleString('en') }}</v-chip>
+                    <td v-if="item.todayRecovered > 1 ">
+                        <v-chip  :class="'text-body-1  bg-success'" color="white"  size="small" >+{{ item.todayRecovered.toLocaleString('en') }}</v-chip>
                        
                     </td>
                     <td v-else>
                         <h6 class="text-body-1 text-muted">{{ item.todayRecovered.toLocaleString('en') }}</h6>
                     </td>
                     <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium">{{ item.active.toLocaleString('en') }}</h6>
+                        <h6 class="text-body-1 text-muted font-weight-medium">{{item.active.toLocaleString('en')}}</h6>
                     </td>
+                  
                     <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium">{{ item.critical.toLocaleString('en') }}</h6>
+                        <h6 class="text-body-1 text-muted font-weight-medium">{{item.critical.toLocaleString('en')}}</h6>
                     </td>
+
                 </tr>
             </tbody>
         </v-table>

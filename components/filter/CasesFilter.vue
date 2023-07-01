@@ -2,6 +2,7 @@
 import { defineComponent,computed, ref, onMounted } from "vue";
 import { useTheme } from "vuetify";
 import ApexCharts from 'apexcharts'
+
 import { CovidData, fetchCovidData } from '@/services/covidService'
 const theme = useTheme();
 const primary = theme.current.value.colors.primary;
@@ -9,9 +10,12 @@ const secondary = theme.current.value.colors.secondary;
 const chartSeries = ref<any>([])
 const filteredSeries = ref<any>([])
 const charts = ref<any>("chart")
+const isActive1m = ref<any>(false);
+const isActive6 = ref<any>(false);
+const isActive1y = ref<any>(false);
+const isActiveAll = ref<any>(false);
 
-/* Chart */
-
+/* Chart Options*/
 const chartOptions = ref<any>({
   chart: {
         id: 'area-datetime',
@@ -35,7 +39,7 @@ const chartOptions = ref<any>({
  
       legend: {
         tooltipHoverFormatter: function(val:number, opts:any) {
-          return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] + ''
+          return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex].toLocaleString('en')
         },
 
         position: 'top',
@@ -66,8 +70,12 @@ const chartOptions = ref<any>({
                 }
       },
       yaxis: {
+       
+
+        
         title: {
-            text: 'Total Coronavirus Cases'
+          offsetX: 5,
+            text: 'Total Cases'
           },
         tickAmount: 8,
         logBase: 10,
@@ -83,28 +91,28 @@ const chartOptions = ref<any>({
           {
             title: {
               formatter: function (val:number) {
-                return val 
+                return (val).toLocaleString('en');
               }
             }
           },
           {
             title: {
               formatter: function (val:number) {
-                return val
+                return (val).toLocaleString('en');
               }
             }
           },
           {
             title: {
               formatter: function (val:number) {
-                return val;
+                return (val).toLocaleString('en');
               }
             }
           }
         ]
       },
-})
-console.log(chartOptions.value.xaxis);
+});
+// console.log(chartOptions.value.xaxis);
 
 
 onMounted(async () => {
@@ -160,6 +168,11 @@ function filterChart(duration: string) {
   let startDate: Date;
 
   if (duration === '1month') {
+
+    isActive1m.value = true; // Set active state to true
+    isActive6.value = false;
+    isActive1y.value = false;
+    isActiveAll.value = false;
     startDate = oneMonthAgo
     chartOptions.value = {
       xaxis: {
@@ -183,7 +196,11 @@ function filterChart(duration: string) {
 
     
   } else if (duration === '6month') {
-     startDate = beginsDate
+    isActive1m.value = false; // Set active state to true
+    isActive6.value = true;
+    isActive1y.value = false;
+    isActiveAll.value = false;
+    startDate = beginsDate
     chartOptions.value = {
       xaxis: {
         yAxisIndex: 0,
@@ -205,7 +222,11 @@ function filterChart(duration: string) {
     }
    
   } else if (duration === '1year') {
-     startDate = beginsDate
+    isActive1m.value = false; // Set active state to true
+    isActive6.value = false;
+    isActive1y.value = true;
+    isActiveAll.value = false;
+    startDate = beginsDate
     chartOptions.value = {
       xaxis: {
         yAxisIndex: 0,
@@ -227,7 +248,11 @@ function filterChart(duration: string) {
     }
    
   } else if (duration === 'all') {
-     startDate = beginsDate
+    isActive1m.value = false; // Set active state to true
+    isActive6.value = false;
+    isActive1y.value = false;
+    isActiveAll.value = true;
+    startDate = beginsDate
     chartOptions.value = {
       xaxis: {
         yAxisIndex: 0,
@@ -258,7 +283,7 @@ function filterChart(duration: string) {
       name: series.name,
       data: series.data.filter((dataPoint) => new Date(dataPoint[0]) >= startDate)
   }));
- 
+  
   // console.log(filteredSeries.value);
   // const chartss = chartSeries.value.map((series) => {
   //   console.log(series.name); 
@@ -292,23 +317,54 @@ function zoomX(minDate: Date, maxDate: Date) {
         
       </div>
 
-    </v-card-item>
-  
-    <div class="mt-0">
-        <v-btn @click="filterChart('1month')">1 Month ago latest</v-btn>
-        <v-btn @click="filterChart('6month')">6 Month ago latest</v-btn>
-        <v-btn @click="filterChart('1year')">1 Years ago latest</v-btn>
-        <v-btn  @click="filterChart('all')">All</v-btn>
+   
+    <v-row>
+        <v-col cols="12">
+          <div class="mt-2">
+   
+        <v-btn 
+          
+          variant="outlined"
+          :active="isActive1m"
+          :color="primary"
+          @click="filterChart('1month')">
+          1 Month ago latest
+        </v-btn>
+        <v-btn 
+          variant="outlined"
+          :active="isActive6"
+          :color="primary"
+          @click="filterChart('6month')">
+          6 Month ago latest
+        </v-btn>
+        <v-btn 
+          variant="outlined"
+          :color="primary"
+          :active="isActive1y"
+          @click="filterChart('1year')">
+          1 Years ago latest
+        </v-btn>
+        <v-btn  
+          variant="outlined"
+          :color="primary"
+          :active="isActiveAll"
+          @click="filterChart('all')">
+          All
+        </v-btn>
     
     <apexchart 
     :ref="chart"
     :options="chartOptions" 
     :series="chartSeries"
     type="area" 
-    height="500"></apexchart> 
+    height="500"
+    width="100%"
+    ></apexchart> 
 
  </div>
- 
+</v-col>
+      </v-row>
+  </v-card-item>
   <!-- :v-if="chartSeries.value[0].data.length0 === 1143" -->
   </v-card>
 </template>

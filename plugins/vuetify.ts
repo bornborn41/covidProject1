@@ -28,7 +28,5 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(VueApexCharts);
   nuxtApp.vueApp.use(VueTablerIcons);
 
-
-
 });
 

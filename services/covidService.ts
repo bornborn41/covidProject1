@@ -18,7 +18,7 @@ export async function fetchCovidData(): Promise<CovidData> {
       console.error('Error fetching COVID data:', error)
       return { date:{},  cases: {}, deaths: {}, recovered: {}  }
     }
-  }
+}
 
 
 export interface HistoricalData {

@@ -2,13 +2,18 @@
 
 import { ref, computed } from 'vue';
 import axios from 'axios';
-import {  fetchHistoricalData } from '@/services/covidService';
+import { fetchHistoricalData } from '@/services/covidService';
 import { useTheme } from "vuetify";
 
 const theme = useTheme();
 const primary = theme.current.value.colors.primary;
 const secondary = theme.current.value.colors.secondary;
 const props = defineProps({ item: Object, level: Number });
+const gridRows = ref<GridRow[]>([]);
+const filteredData = ref<GridRow[]>([]);
+const selectedCountries = ref<string>('Thailand');
+const selectedProvinces = ref<string>();
+
 
 interface HistoricalData {
   country: string;
@@ -40,14 +45,7 @@ const gridColumns = [
   { field: 'recovered', header: 'Toltal Recovered' },
 ];
 
-const gridRows = ref<GridRow[]>([]);
-const filteredData = ref<GridRow[]>([]);
-const selectedCountries = ref<string>('Thailand');
-const selectedProvinces = ref<string>();
-const itemCountries = ref<string[]>([]);
-const itemProvinces = ref<string[]>([]);
-const selectedYear = ref<string>('2023');
-const selectedMonth = ref<string>('January');
+
 // console.log(gridRows);
 
 onMounted(async () => {

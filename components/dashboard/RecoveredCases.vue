@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { computed } from "vue";
-import { useTheme } from "vuetify";
-import { datacovidAll } from '@/data/dashboard/dashboardData';
+import { ref ,onMounted,computed} from "vue";
+import { fetchTotalCovidData } from '@/server/apiFetch'
+import {  transformTotalCovidData } from '@/data/dashboard/dashboardData';
+import axios from "axios";
 
-const theme = useTheme();
-const primary = theme.current.value.colors.primary;
-const secondary = theme.current.value.colors.secondary;
+const coronaCasesData = ref<any>([]);
+
+onMounted(async () => {
+  try {
+  const totalCovidData = await fetchTotalCovidData();
+  const transformed = transformTotalCovidData(totalCovidData);
+  coronaCasesData.value = transformed
+
+  } catch (error) {
+    console.error('Error fetching Total COVID-19 data:', error);
+  }
+
+});
 
 </script>
 <template>
@@ -22,10 +32,20 @@ const secondary = theme.current.value.colors.secondary;
       </div>
       <v-row>
         <v-col cols="12">
-          <div class="mt-2">
-            <div v-for="casesAll in datacovidAll" :key="casesAll?.recovered" >
-            <h2 class="text-h2"><UsersIcon size="25" />{{casesAll?.recovered.toLocaleString('en')}}</h2>
+          <div v-for="data in coronaCasesData" :key="data.recovered"  class="mt-2">
+            <div >
+            <h2 class="text-h2"><UsersIcon size="25" />{{data.recovered.toLocaleString('en')}}</h2>
+            
           </div>
+          <div class="mt-2">
+              <v-avatar class="bg-lighterror text-accent ml-2" size="25" >
+                <RotateRectangleIcon size="20" />
+              </v-avatar>
+              <span class="text-subtitle-1 ml-2  font-weight-bold">
+                {{data.todayRecovered.toLocaleString('en')}}
+              </span>
+              <span class="text-subtitle-1 text-muted ml-2">of Today Recovered</span>
+            </div>
           </div>
         </v-col>
       </v-row>

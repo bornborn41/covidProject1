@@ -1,8 +1,11 @@
-# Nuxt 3 Starter
+# Nuxt 3 Starter Covid19 Project API Wabsite by Axios
 
 > 💚 A Better Nuxt 3 starter template
 
-## Use the Template
+## Demo
+
+![vCard Desktop Demo](./website-demo-image/desktop1.png "Desktop Demo1")
+![vCard Desktop Demo](./website-demo-image/desktop2.png "Desktop Demo2")
 
 ### Clone to local
 
@@ -38,5 +41,8 @@ Build the application for production:
 ```bash
 yarn build
 ```
-
+### Credit
+```bash
+https://disease.sh/docs/*****#/COVID-19%3A%20Worldometers/get_v3_covid_19_all
+```
 

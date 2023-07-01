@@ -1,75 +1,92 @@
-import type { covidAll,ReportCovidByContinent,casesThisYear,totalCases,byCountries} from '@/types/dashboard/index';
-import { BubbleMenu } from '@tiptap/vue-3';
-import { defineSSRCustomElement } from 'vue';
-import { ref,  watch} from 'vue';
-// import { findDuplicates } from '@tiptap/vue-3';
-// import { array, number, object } from 'yup';
+import type { totalCovidType,historicalAllType,continentsType,countriesType } from '@/types/dashboard/index';
 
-
-/*--CovidAll--*/
-const {data:all} = await useFetch<covidAll>("https://disease.sh/v3/covid-19/all",{
-    pick: ['cases','deaths','recovered']
-})
-const datacovidAll = [all.value]
-
-/*--Report Covid By Continent--*/
-const {data:continent}  = await useFetch<ReportCovidByContinent>("https://disease.sh/v3/covid-19/continents")
-const dataContinent = [continent.value]
-
-
-/*--Cases This Year--*/
-const {data:thisYear} = await useFetch<casesThisYear>("https://disease.sh/v3/covid-19/historical/all")
-const dataThisYear =[thisYear.value?.cases]
-let DT =Object.values(dataThisYear);
-let dataTY = JSON.parse(JSON.stringify(DT))
-let dataKaysTHY = Object.keys(dataTY[0]);
-const arrDTv = Object.values(dataTY[0]);
-const arrDTk : string[] = [];
-for (const itemDTk in dataKaysTHY){
-    let data:Date = new Date(dataKaysTHY[itemDTk]); 
-    let dateTime:string = data.toUTCString();
-    arrDTk.push(dateTime)    
+interface Countries {
+    updated: number,
+    country: string,
+    countryInfo: {
+        _id: number,
+        iso2: string,
+        iso3: string,
+        lat: number,
+        long: number,
+        flag: string
+    },
+    cases: number,
+    todayCases: number,
+    deaths: number,
+    todayDeaths: number,
+    recovered: number,
+    todayRecovered: number,
+    active: number,
+    critical: number,
+    casesPerOneMillion: number,
+    deathsPerOneMillion: number,
+    tests: number,
+    testsPerOneMillion: number,
+    population: number,
+    continent: number,
+    oneCasePerPeople: number,
+    oneDeathPerPeople: number,
+    oneTestPerPeople: number,
+    activePerOneMillion: number,
+    recoveredPerOneMillion: number,
+    criticalPerOneMillion: number
 }
 
-/*--Total Cases Covid--*/
-const {data:ttCases} = await useFetch<totalCases>("https://disease.sh/v3/covid-19/historical/all?lastdays=all")
-const ttcovidCases = [ttCases.value?.cases]
-const ttdeathsCases = [ttCases.value?.deaths]
-const ttrecoveredCases = [ttCases.value?.recovered]
-
-let ttcc = Object.values(ttcovidCases);
-let ttdc = Object.values(ttdeathsCases);
-let ttrc = Object.values(ttrecoveredCases);
-
-let datattc = JSON.parse(JSON.stringify(ttcc));
-let datattd = JSON.parse(JSON.stringify(ttdc));
-let datattr = JSON.parse(JSON.stringify(ttrc));
-
-let dataKaysTTC = Object.keys(datattc[0]);
-let dataKaysTTD = Object.keys(datattd[0]);
-let dataKaysTTR = Object.keys(datattr[0]);
-
-let dataValuesTTC = Object.values(datattc[0]);
-let dataValuesTTD = Object.values(datattd[0]);
-let dataValuesTTR = Object.values(datattr[0]);
- 
-const arrTTC : string[] =[]
-arrTTC.push(dataValuesTTC,dataValuesTTD,dataValuesTTR,dataKaysTTC )
-
-
-
-/*--byCountries Covid--*/
-const {data:countries}  = await useFetch<byCountries>("https://disease.sh/v3/covid-19/countries")
-const dataCountries =[countries.value]
-const dataCountriesT =[countries.value?.updated]
-
-let datacD = Object.values(dataCountries);
-const datacd = JSON.parse(JSON.stringify(datacD));
-
-const datavd:any = Object.values(datacd[0]);
-for (const itemDATE in datavd){
-    let data:Date = new Date(datavd[itemDATE].updated); 
-    let dateTime:string = data.toDateString();
+/*--Transform Total Covid Cases Data--*/
+export function transformTotalCovidData (data: totalCovidType){
+    const transformedData: totalCovidType[]= [];     
+    transformedData.push(data)
+    return transformedData
 }
 
-export { datacovidAll,dataContinent,arrDTv,arrDTk,arrTTC,dataCountries}
+export function transformHistoricalAll (data: historicalAllType){
+    const seriesData: any[]= []; 
+    const cases = getDateValues(data.cases);
+    const deaths = getDateValues(data.deaths);
+    const recovered = getDateValues(data.recovered);
+    seriesData.push(cases,deaths ,recovered )
+    return seriesData
+}
+
+function getDateValues(data: Record<string,number>){
+    const getData =  Object.entries(data).map(([date,value]) => (
+        {
+            timeline: new Date(date).getTime(),
+            data: value,
+        }
+    ));
+    return getData
+}
+
+export function transformContinentsData(data: continentsType[]): continentsType[]{
+    const transformedData: continentsType[]= [];     
+    transformedData.push(data)
+    return transformedData
+}
+export function transformCountriesData(data: countriesType): Countries[]{
+    const transformedData: Countries[]= [];  
+    console.log(data);
+    
+    // for (const item of data ){
+
+    // }
+    // data.forEach((item) => {
+        
+    //     const country =item.country 
+    //     const countryInfo=item.countryInfo
+    //     const cases=item.cases
+    //     const todayCases=item.todayCases
+    //     const deaths=item.deaths
+    //     const todayDeaths=item.todayDeaths
+    //     const recovered =item.recovered 
+    //     const todayRecovered=item.todayRecovered
+    //     const activecritical=item.activecritical
+    //     const population=item.population
+    //     const continent=item.continent
+    //     transformedData.push(country,countryInfo,cases,todayCases,deaths,todayDeaths,recovered)
+    // })
+    transformedData.push(data)
+    // console.log(transformedData);
+    return transformedData
+}
