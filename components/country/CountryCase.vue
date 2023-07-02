@@ -36,9 +36,11 @@ interface Countries {
     criticalPerOneMillion: number
 }
 
-const tableRows = ref<countriesTypeType[]>([]);
+const tableRows = ref<countriesTypeType>([]);
 const filteredTableRows = ref<countriesTypeType[]>([]);
 const selectContinent = ref<any[]>(['ALL']);
+const continents = ref<any>([])
+
 const tableColumns = [
     { field: 'id', header: 'ID' },
     { field: 'countries', header: 'Countries' },
@@ -62,31 +64,58 @@ async function fetchData() {
   try {
     const data = await fetchCountries();
     const transformedData = transformCountriesData(data);
-    tableRows.value = transformedData;
-    filteredTableRows.value= transformedData;
+    const forData = Object.values(transformedData[0]).map((item) => {        
+        return item
+    });
+    continents.value = forData;
+    tableRows.value = forData;
+    filteredTableRows.value= forData;
   } catch (error) {
     console.error('Error fetching historical data:', error);
   }
 }
+console.log(continents);
 console.log(tableRows);
-
 const uniqueContinent = computed(() => {
    
     const continent = new Set<string>();
-    for (const item of tableRows.value) {
-        console.log(item);
-    }
 
-return Array.from(continent);
+  for (const item of filteredTableRows.value) {
+    const itemcontinent = item.continent;
+    const all = 'ALL'
+    if (itemcontinent != "") {
+        continent.add(itemcontinent);
+        continent.add(all);
+    }
+  }
+  return Array.from(continent)
   
   
 });
-// const filterByContinent = () => {
+const filterByContinent = () => {
+    console.log(selectContinent.value);
+    
+    if (selectContinent.value == "ALL"){
+        console.log("12346");
+        tableRows.value = filteredTableRows.value
+    }else{
+
+        tableRows.value = filteredTableRows.value.filter(item => {
+        const itemContinent = item.continent
+        // console.log(itemContinent === selectContinent.value);
+         return itemContinent === selectContinent.value;
+    });
+       
+    }
+//    
+//         return tableRows.value 
+//     }else{
 //     tableRows.value = filteredTableRows.value.filter(item => {
 //     const itemContinent = item.continent
-//     return itemYear === selectedYear.value && itemMonth === selectedMonth.value;
+//     return itemContinent === selectContinent.value;
 //   });
-// };
+// }
+};
 
 function test(){
     const continent = new Set<string>();
@@ -108,6 +137,7 @@ function test(){
           <v-select
             v-model="selectContinent"
             :items="uniqueContinent"
+            :on-click:append?="filterByContinent()"
             variant="outlined"
             density="compact"
             hide-details
@@ -132,7 +162,7 @@ function test(){
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(item,index) in tableRows[0]" :key="item.country" class="month-item">
+                <tr v-for="(item,index) in tableRows" :key="item.country" class="month-item">
                     <td>
                         <p class="text-15 font-weight-medium">{{index+1}}</p>
                     </td>

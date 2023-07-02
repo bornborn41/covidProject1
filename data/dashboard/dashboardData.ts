@@ -66,8 +66,7 @@ export function transformContinentsData(data: continentsType[]): continentsType[
 }
 export function transformCountriesData(data: countriesType): Countries[]{
     const transformedData: Countries[]= [];  
-    console.log(data);
-    
+
     // for (const item of data ){
 
     // }
@@ -86,7 +85,7 @@ export function transformCountriesData(data: countriesType): Countries[]{
     //     const continent=item.continent
     //     transformedData.push(country,countryInfo,cases,todayCases,deaths,todayDeaths,recovered)
     // })
+    
     transformedData.push(data)
-    // console.log(transformedData);
     return transformedData
 }
