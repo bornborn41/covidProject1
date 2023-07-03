@@ -1,9 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
   ssr: false,
  
   typescript: {
-    shim: false
+    shim: false,
+  
   },
   build: {
     transpile: ["vuetify"],
@@ -20,7 +22,7 @@ export default defineNuxtConfig({
   devServerHandlers: [],
   hooks: {
   },
-
+  plugins: ['~/plugins/axios.ts'],
 
 })
 

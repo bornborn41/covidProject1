@@ -47,16 +47,7 @@ console.log(tableRows);
             <thead>
                 <tr>
                     <th  v-for="(item,index) in tableColumns" :key="item.header" class="text-subtitle-1 font-weight-bold">{{item.header}}</th>
-                    <!-- <th class="text-subtitle-1 font-weight-bold">Continent</th>
-                    <th class="text-subtitle-1 font-weight-bold">Population</th>
-                    <th class="text-subtitle-1 font-weight-bold">Total Cases</th>
-                    <th class="text-subtitle-1 font-weight-bold">New Cases</th>
-                    <th class="text-subtitle-1 font-weight-bold">Total Deaths</th>
-                    <th class="text-subtitle-1 font-weight-bold">New Deaths</th>
-                    <th class="text-subtitle-1 font-weight-bold">Total Recovered</th>
-                    <th class="text-subtitle-1 font-weight-bold">New Recovered</th>
-                    <th class="text-subtitle-1 font-weight-bold">Active Cases</th>
-                    <th class="text-subtitle-1 font-weight-bold">Serious Critical</th> -->
+
                 </tr>
             </thead>
             <tbody>

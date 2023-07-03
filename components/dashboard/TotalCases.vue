@@ -1,22 +1,8 @@
 <script setup lang="ts">
-import { ref , watch,computed  } from "vue";
-import { useTheme } from "vuetify";
-import ApexCharts from 'apexcharts'
+import { ref ,onMounted, watch,computed  } from "vue";
 import axios from "axios";
 import { fetchHistoricalAll,} from '@/server/apiFetch'
 import { transformHistoricalAll } from '@/data/dashboard/dashboardData';
-
-
-const theme = useTheme();
-const primary = theme.current.value.colors.primary;
-const secondary = theme.current.value.colors.secondary;
-const warning = theme.current.value.colors.warning;
-
-const selectMonth = ref("January");
-const itemsMonth = ref(["January", "February", "March", "April", "May", "June", "July",
-    "August", "September", "October", "November", "December"]);
-const selectYears = ref("ALL");
-const itemsYears = ref(["ALL","2020", "2021", "2023"]);
 
 const chartSeries = ref<any>([])
 const filteredSeries = ref<any>([])
@@ -127,13 +113,13 @@ onMounted(async () => {
   const transformed = transformHistoricalAll(historicalAllData);
 
   const cases = Object.values(transformed[0]).map((item,index) => {
-    return [item.timeline,item.data]
+    return [item.date,item.data]
   });
   const deaths = Object.values(transformed[1]).map((item,index) => {
-    return [item.timeline,item.data]
+    return [item.date,item.data]
   });
   const recovered = Object.values(transformed[2]).map((item,index) => {
-    return [item.timeline,item.data]
+    return [item.date,item.data]
   });
   // console.log(cases,deaths ,recovered);
   

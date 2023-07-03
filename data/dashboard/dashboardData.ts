@@ -1,38 +1,5 @@
 import type { totalCovidType,historicalAllType,continentsType,countriesType } from '@/types/dashboard/index';
 
-interface Countries {
-    updated: number,
-    country: string,
-    countryInfo: {
-        _id: number,
-        iso2: string,
-        iso3: string,
-        lat: number,
-        long: number,
-        flag: string
-    },
-    cases: number,
-    todayCases: number,
-    deaths: number,
-    todayDeaths: number,
-    recovered: number,
-    todayRecovered: number,
-    active: number,
-    critical: number,
-    casesPerOneMillion: number,
-    deathsPerOneMillion: number,
-    tests: number,
-    testsPerOneMillion: number,
-    population: number,
-    continent: number,
-    oneCasePerPeople: number,
-    oneDeathPerPeople: number,
-    oneTestPerPeople: number,
-    activePerOneMillion: number,
-    recoveredPerOneMillion: number,
-    criticalPerOneMillion: number
-}
-
 /*--Transform Total Covid Cases Data--*/
 export function transformTotalCovidData (data: totalCovidType){
     const transformedData: totalCovidType[]= [];     
@@ -41,18 +8,44 @@ export function transformTotalCovidData (data: totalCovidType){
 }
 
 export function transformHistoricalAll (data: historicalAllType){
-    const seriesData: any[]= []; 
-    const cases = getDateValues(data.cases);
-    const deaths = getDateValues(data.deaths);
-    const recovered = getDateValues(data.recovered);
-    seriesData.push(cases,deaths ,recovered )
-    return seriesData
+    const historicalData: any[]= [];     
+
+    if (data.length === 289){
+        const forData = Object.values(data).map((item,index)=> {
+            // console.log(index,item.timeline.cases);
+            const { country,province ,timeline } = item;
+            const cases = getDateValues(timeline.cases);
+            const deaths = getDateValues(timeline.deaths);
+            const recovered = getDateValues(timeline.recovered);
+            return {
+                country: country,
+                province: province,
+                cases: cases,
+                deaths:deaths,
+                recovered:recovered
+            }
+           
+            // console.log(country,province ,cases );
+            // historicalData.push(country,province,cases,deaths ,recovered )
+        });
+        // console.log(forData);
+        return forData
+        
+        
+    }else{
+        console.log("Overall");
+        const cases = getDateValues(data.cases);
+        const deaths = getDateValues(data.deaths);
+        const recovered = getDateValues(data.recovered);
+        historicalData.push(cases,deaths ,recovered )
+    }
+    return historicalData
 }
 
 function getDateValues(data: Record<string,number>){
     const getData =  Object.entries(data).map(([date,value]) => (
         {
-            timeline: new Date(date).getTime(),
+            date: new Date(date).getTime(),
             data: value,
         }
     ));
@@ -64,28 +57,11 @@ export function transformContinentsData(data: continentsType[]): continentsType[
     transformedData.push(data)
     return transformedData
 }
-export function transformCountriesData(data: countriesType): Countries[]{
-    const transformedData: Countries[]= [];  
+export function transformCountriesData(data: countriesType): countriesType[]{
+    const transformedData: countriesType[]= [];  
+    // console.log(data);
 
-    // for (const item of data ){
-
-    // }
-    // data.forEach((item) => {
-        
-    //     const country =item.country 
-    //     const countryInfo=item.countryInfo
-    //     const cases=item.cases
-    //     const todayCases=item.todayCases
-    //     const deaths=item.deaths
-    //     const todayDeaths=item.todayDeaths
-    //     const recovered =item.recovered 
-    //     const todayRecovered=item.todayRecovered
-    //     const activecritical=item.activecritical
-    //     const population=item.population
-    //     const continent=item.continent
-    //     transformedData.push(country,countryInfo,cases,todayCases,deaths,todayDeaths,recovered)
-    // })
-    
     transformedData.push(data)
+    // console.log(transformedData);
     return transformedData
 }

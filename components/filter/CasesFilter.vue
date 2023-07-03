@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { defineComponent,computed, ref, onMounted } from "vue";
+import {  ref, onMounted } from "vue";
 import { useTheme } from "vuetify";
-import ApexCharts from 'apexcharts'
+import { transformHistoricalAll } from '@/data/dashboard/dashboardData';
+import { fetchHistoricalAll,} from '@/server/apiFetch'
+import axios from "axios";
 
-import { CovidData, fetchCovidData } from '@/services/covidService'
 const theme = useTheme();
 const primary = theme.current.value.colors.primary;
 const secondary = theme.current.value.colors.secondary;
@@ -116,45 +117,44 @@ const chartOptions = ref<any>({
 
 
 onMounted(async () => {
-  const covidData = await fetchCovidData()
-  // console.log(covidData.cases);
-  
-  
-  transformChartData(covidData)
-})
+  try {
+  const historicalAllResponse = await fetchHistoricalAll();
+  const historicalAllCofigURL = historicalAllResponse.config.url;
+  const response = await axios.get(historicalAllCofigURL+'/all?lastdays=all');
+  const historicalAllData = response.data
+  const transformed = transformHistoricalAll(historicalAllData);
 
-function transformChartData(covidData: CovidData) {
-  const seriesData = []
-  for (const date in covidData.cases) {
-    const cases = covidData.cases[date]
-    const deaths = covidData.deaths[date]
-    const recovered = covidData.recovered[date]
-    const timestamp = new Date(date).getTime()
-    // console.log(timestamp, cases, deaths, recovered);
-    seriesData.push([timestamp, cases, deaths, recovered])
-  }
-  // console.log("seriesData0 :", seriesData);
+  const cases = Object.values(transformed[0]).map((item,index) => {
+    return [item.date,item.data]
+  });
+  const deaths = Object.values(transformed[1]).map((item,index) => {
+    return [item.date,item.data]
+  });
+  const recovered = Object.values(transformed[2]).map((item,index) => {
+    return [item.date,item.data]
+  });
+  // console.log(cases,deaths ,recovered);
   
-
   chartSeries.value = [
     {
-      name: 'Cases',
-      data: seriesData.map((data) => [data[0], data[1]])
+      name:"Cases",
+      data: cases
+    },
+
+    {
+      name:"Recovered",
+      data: recovered
     },
     {
-      name: 'Deaths',
-      data: seriesData.map((data) => [data[0], data[2]])
+      name:"Deaths",
+      data: deaths
     },
-    {
-      name: 'Recovered',
-      data: seriesData.map((data) => [data[0], data[3]])
-    }
   ]
-  // Initialize filteredSeries with full data
-  filteredSeries.value = chartSeries.value
-  // console.log("filteredSeries.value[0] ",filteredSeries.value);
-  
-}
+  } catch (error) {
+    console.error('Error fetching Total COVID-19 data:', error);
+  }
+
+});
 
 function filterChart(duration: string) {
   const durations = duration
@@ -277,32 +277,33 @@ function filterChart(duration: string) {
   else {
     return; // Invalid duration
   }
+}
 
   // Filter the data based on the start date
-  const filterData = chartSeries.value.map((series) => ({
-      name: series.name,
-      data: series.data.filter((dataPoint) => new Date(dataPoint[0]) >= startDate)
-  }));
+//   const filterData = chartSeries.value.map((series) => ({
+//       name: series.name,
+//       data: series.data.filter((dataPoint) => new Date(dataPoint[0]) >= startDate)
+//   }));
   
-  // console.log(filteredSeries.value);
-  // const chartss = chartSeries.value.map((series) => {
-  //   console.log(series.name); 
-  //   name: series.name,
-  //   data: series.data.filter((dataPoint) => new Date(dataPoint.x) >= startDate),
-  // })
-  // zoomX(oneMonthAgo, latestDate);
-  return filterData 
-}
+//   console.log(filteredSeries.value);
+//   const chartss = chartSeries.value.map((series) => {
+//     console.log(series.name); 
+//     name: series.name,
+//     data: series.data.filter((dataPoint) => new Date(dataPoint.x) >= startDate),
+//   })
+//   zoomX(oneMonthAgo, latestDate);
+//   return filterData 
+// }
  
 
 
-function zoomX(minDate: Date, maxDate: Date) {
-  var chart = new ApexCharts(charts, chartOptions.value);
-  console.log(chart);
-  chart.zoomX(minDate.getTime(),maxDate.getTime())
-  console.log(minDate.getTime(),maxDate.getTime());
+// function zoomX(minDate: Date, maxDate: Date) {
+//   var chart = new ApexCharts(charts, chartOptions.value);
+//   console.log(chart);
+//   chart.zoomX(minDate.getTime(),maxDate.getTime())
+//   console.log(minDate.getTime(),maxDate.getTime());
   
-}
+
 
 
 

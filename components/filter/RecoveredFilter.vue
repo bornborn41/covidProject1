@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import axios from "axios";
 import {  ref, onMounted,computed } from "vue";
 import {  fetchHistoricalData } from '@/services/covidService';
 import { useTheme } from "vuetify";
+import { fetchHistoricalAll,} from '@/server/apiFetch'
+import { transformHistorical } from '@/data/filter/filterData';
+import type { historicalType } from '@/types/filter/index';
+import { transformHistoricalAll } from "~~/data/dashboard/dashboardData";
 
 
 interface HistoricalData {
@@ -130,63 +135,26 @@ const chartOptions = {
 };
 
 onMounted(async () => {
-  const data = await fetchHistoricalData();
-  const transformedData = transformHistoricalData(data);
+  try {
+  const historicalAllResponse = await fetchHistoricalAll();
+  const historicalAllData = historicalAllResponse.data
+  const transformedData = transformHistoricalAll(historicalAllData);
+  // console.log(transformedData);
+  
   chartFilter.value = transformedData;
   filteredData.value = transformedData;
   // await fetchData();
+  }catch (error) {
+    console.error('Error fetching historical data:', error);
+  }
 });
 
-// async function fetchData() {
-//   try {
-//     const data = await fetchHistoricalData();
-//     const transformedData = transformHistoricalData(data);
-//     chartFilter.value = transformedData;
-//     filteredData.value = transformedData;
-    
-//   } catch (error) {
-//     console.error('Error fetching historical data:', error);
-//   }
-// }
-
-function transformHistoricalData(data: HistoricalData[]) {
-  const transformedData: ChartFilter[] = []; 
-  
-  data.forEach((item) => {
- 
-    const { country,province ,timeline } = item;
-    const cases = getDateValue(timeline.cases);
-    const deaths = getDateValue(timeline.deaths);
-    const recovered = getDateValue(timeline.recovered);
-
-    transformedData.push({ country,province , cases , deaths, recovered });
-   
-    
-    
-  });
-  
-  
-  return transformedData;
-} 
-
-function getDateValue(data: Record<string, number>) {
-  const getValue = new Set<string>();
-  const kValue = Object.keys(data)
-  const vValue = Object.values(data)
-  
-  const allData = Object.entries(data).map(([date, value]) => (
-    {
-    timeline: new Date(date).getTime(),
-    data: value,
-    }
-    
-  ));
-
- 
-  // console.log(getValue);
-  
-  return allData;
+// console.log(chartFilter);
+function test(){
+  console.log(chartFilter.value[0].cases[0]);
 }
+
+
 const uniqueCountries = computed(() => {
   const countries = new Set<string>();
 
@@ -201,23 +169,25 @@ const uniqueCountries = computed(() => {
 });
 
 const uniqueProvinces = computed(() => {
-  // const provinces = new Set<string>();
-  const provinces = [] 
+  const provinces = new Set<string>();
+  const provincesL = [] 
   for (const item of chartFilter.value) {
     const itemCountry = item.country
     const itemProvince = item.province
-    if (itemCountry === selectedCountries.value && itemProvince != null){
-      // provinces.add(provinces);
-      provinces.push(itemProvince);
+    if (itemCountry === selectedCountries.value && itemProvince !== null){
+      provinces.add(itemProvince);
+      provincesL.push(itemProvince);
     }
   }
-  if (provinces.length > 0){
-    selectedProvinces.value = provinces[0]
+  console.log(provinces);
+  
+  if (provinces.size > 0){
+    selectedProvinces.value = provincesL[0]
   }else{
     selectedProvinces.value = null;
   }
-
-  return provinces
+  return Array.from(provinces);
+  // return provinces
 });
 
 const filterByCountriesProvinces = () => {
@@ -234,15 +204,15 @@ const filterByCountriesProvinces = () => {
 
       // console.log("same",item.country)
       const filterCases = Object.values(itemCases).map((value,index) => {
-        const datas = [value.timeline,value.data]
+        const datas = [value.date,value.data]
         return datas
       })
       const filterDeaths = Object.values(itemDeaths).map((value,index) => {
-        const datas = [value.timeline,value.data]
+        const datas = [value.date,value.data]
         return datas
       })
       const filterRecovered = Object.values(itemRecovered).map((value,index) => {
-        const datas = [value.timeline,value.data]
+        const datas = [value.date,value.data]
         return datas
       })
       // series.push(filterCases)
@@ -281,44 +251,55 @@ const formatDate = (date: string) => {
   
 </script>
 <template>
-  <v-card elevation="10" class="">
-      <v-card-item class="pa-6">
-      <div class="d-sm-flex align-center justify-space-between pt-sm-2">
-          <v-card-title class="text-h5 pt-sm-2 pb-7">Filter by Contries</v-card-title>
-          <!-- <v-btn @click="filterOneMonth">Filter 1 Month</v-btn> -->
-          <div class="d-sm-flex align-center justify-space-between pt-sm-2">
-            <v-select 
-      v-model="selectedCountries"
-      :items= uniqueCountries
-      :on-click:append="filterByCountriesProvinces()"
-      variant="solo"
-      density="compact"
-    
-    ></v-select>
-<div v-if="uniqueProvinces.length > 0" class="d-sm-flex align-center justify-space-between pt-sm-2" >
-<v-select 
-      v-model="selectedProvinces"
-      :on-click:append="filterByCountriesProvinces()"
-      :items= uniqueProvinces
-      variant="solo"
-      density="compact"
+  <v-card elevation="10" class="withbg">
+    <v-card-item>
+      <div class="d-flex align-center justify-space-between pt-sm-2">
+        <v-card-title class="text-h4">Coronavirus Filter of 2023 by Contries</v-card-title>
+        <!-- <v-card-title class="text-h5">Recovered</v-card-title> -->
+                        <!-- <v-btn @click="test()" >TEST</v-btn> -->
 
-    ></v-select>
+            <div class="d-sm-flex align-center justify-space-between pt-sm-2">
 
-</div>
-  </div>
-     
+    <v-select 
+          v-model="selectedCountries"
+          :items= uniqueCountries
+          :on-click:append="filterByCountriesProvinces()"
+          variant="solo"
+          density="compact"
+          :active-color= "primary"
 
+        ></v-select>
+    <div v-if="uniqueProvinces.length > 0">
+    <v-select 
+          v-model="selectedProvinces"
+          :label="Provinces"
+          :on-click:append="filterByCountriesProvinces()"
+          :items= uniqueProvinces
+          variant="solo"
+          density="compact"
+          :active-color= "primary"
+        ></v-select>
+
+    </div>
+    </div>
       </div>
-      <div>
-
+      <v-row>
+        <v-col cols="12">
+          <div class="mt-2">
+            <!-- <v-btn 
+            @click="TestF()"
+            >Ttest
+            </v-btn> -->
             <apexchart 
             :options="chartOptions" 
             :series="chartsSeries" 
             type="area" 
             height="400"></apexchart>
-       
-      </div>
-      </v-card-item>
+          </div>
+          
+        </v-col>
+      </v-row>
+    </v-card-item>
+    
   </v-card>
 </template>

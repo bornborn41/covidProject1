@@ -9,42 +9,37 @@ interface TotalCovidData {
   recovered: number;
   todayRecovered: number;
 }
-export async function fetchTotalCovidData(): Promise<totalCovidData> {
-    try {
-      const response = await axios.get('https://disease.sh/v3/covid-19/all')
-      // console.log(typeof(response.data));
-      return response.data
-    } catch (error) {
-      console.error('Error fetching COVID data:', error)
-      
-    }
-}
-
-export async function fetchHistoricalAll(): Promise<AxiosResponse> {
-    try {
-      const response = await axios.get('https://disease.sh/v3/covid-19/historical')
-      // console.log(response.config.url+'?lastdays=all');
-      
-      return response
-    } catch (error) {
-      console.error('Error fetching COVID data:', error)
-      return { cases: {}, deaths: {}, recovered: {}  }
-    }
-}
-
-
-export async function fetchContinents(): Promise<continentsType> {
+export async function fetchTotalCovidData() {
   try {
-    const response = await axios.get('https://disease.sh/v3/covid-19/continents')    
+    const response = await axios.get<TotalCovidData>('/all');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  } 
+   
+}
+
+export async function fetchHistoricalAll(){
+  try {
+    const response = await axios.get<AxiosResponse>('/historical');
+    return response;
+  } catch (error) {
+    console.error('Error fetching HistoricalAll data:', error);
+  } 
+}
+
+export async function fetchContinents(){
+  try {
+    const response = await axios.get('/continents')    
     return response.data
   } catch (error) {
     console.error('Error fetching COVID data:', error)
   }
 }
 
-export async function fetchCountries(): Promise<countriesType> {
+export async function fetchCountries() {
   try {
-    const response = await axios.get('https://disease.sh/v3/covid-19/countries')    
+    const response = await axios.get('/countries')    
     return response.data
   } catch (error) {
     console.error('Error fetching COVID data:', error)

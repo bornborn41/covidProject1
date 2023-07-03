@@ -1,14 +1,16 @@
 <script setup lang="ts">
-
 import { ref, computed } from 'vue';
 import axios from 'axios';
 import { fetchHistoricalData } from '@/services/covidService';
 import { useTheme } from "vuetify";
+import { fetchHistoricalAll,} from '@/server/apiFetch'
+import { transformHistorical } from '@/data/filter/filterData';
+import type { historicalType } from '@/types/filter/index';
+import { transformHistoricalAll } from "~~/data/dashboard/dashboardData";
 
 const theme = useTheme();
 const primary = theme.current.value.colors.primary;
-const secondary = theme.current.value.colors.secondary;
-const props = defineProps({ item: Object, level: Number });
+
 const gridRows = ref<GridRow[]>([]);
 const filteredData = ref<GridRow[]>([]);
 const selectedCountries = ref<string>('Thailand');
@@ -31,11 +33,6 @@ interface GridRow {
   deaths?: { timeline: number; data: number }[];
   recovered?: { timeline: number; data: number }[];
 }
-type allDateData = {
-  timeline: number,
-  data: number,
-}
-
 
 const gridColumns = [
   { field: 'id', header: 'ID' },
@@ -49,56 +46,21 @@ const gridColumns = [
 // console.log(gridRows);
 
 onMounted(async () => {
-  await fetchData();
-});
-
-async function fetchData() {
   try {
-    const data = await fetchHistoricalData();
-    const transformedData = transformHistoricalData(data);
-    gridRows.value = transformedData;
-    filteredData.value = transformedData;
-    
-  } catch (error) {
+  const historicalAllResponse = await fetchHistoricalAll();
+  const historicalAllData = historicalAllResponse.data
+  const transformedData = transformHistoricalAll(historicalAllData);
+  // console.log(transformedData);
+  
+  gridRows.value = transformedData;
+  filteredData.value = transformedData;
+  // await fetchData();
+  }catch (error) {
     console.error('Error fetching historical data:', error);
   }
-}
+});
 
-function transformHistoricalData(data: HistoricalData[]) {
-  const transformedData: GridRow[] = []; 
-  data.forEach((item) => {
- 
-    const { country,province ,timeline } = item;
-    const cases = getDateValue(timeline.cases);
-    const deaths = getDateValue(timeline.deaths);
-    const recovered = getDateValue(timeline.recovered);
 
-    transformedData.push({ country,province , cases , deaths, recovered });
-    // console.log(cases);
-    
-    
-  });
-  return transformedData;
-} 
-
-function getDateValue(data: Record<string, number>) {
-
-  const kValue = Object.keys(data)
-  const vValue = Object.values(data)
- 
-  const allData = Object.entries(data).map(([date, value]) => (
-    {
-    timeline: new Date(date).getTime(),
-    data: value,
-    }
-    
-  ));
-
- 
-  // console.log(getValue);
-  
-  return allData;
-}
 const uniqueCountries = computed(() => {
   const countries = new Set<string>();
 
@@ -113,36 +75,24 @@ const uniqueCountries = computed(() => {
 });
 
 const uniqueProvinces = computed(() => {
-  // const provinces = new Set<string>();
-  const provinces = [] 
+  const provinces = new Set<string>();
+  const provincesL = [] 
   for (const item of gridRows.value) {
     const itemCountry = item.country
     const itemProvince = item.province
-    if (itemCountry === selectedCountries.value && itemProvince != null){
-      // provinces.add(provinces);
-      provinces.push(itemProvince);
+    if (itemCountry === selectedCountries.value && itemProvince !== null){
+      provinces.add(itemProvince);
+      provincesL.push(itemProvince);
     }
   }
-  if (provinces.length > 0){
-    selectedProvinces.value = provinces[0]
+  if (provinces.size > 0){
+    selectedProvinces.value = provincesL[0]
   }else{
     selectedProvinces.value = null;
   }
 
-  return provinces
+  return Array.from(provinces);
 });
-
-// const uniqueMonths = computed(() => {
-//   const months = new Set<string>();
-//   for (const item of filteredData.value ) {
-//     const itemYear = new Date(item.date).getFullYear().toString();
-//     const itemMonth = new Date(item.date).toLocaleString('en-US', { month: 'long' });
-//     if (itemYear === selectedYear.value) {
-//       months.add(itemMonth);
-//     }
-//   }
-//   return Array.from(months);
-// });
 
 
 const filterByCountriesProvinces = () => {
@@ -154,9 +104,6 @@ const filterByCountriesProvinces = () => {
 
 }
 
-
-
-
 const formatDate = (date: string) => {
   return new Date(date).toDateString();
 };
@@ -165,7 +112,7 @@ const formatDate = (date: string) => {
     <v-card elevation="10" class="">
         <v-card-item class="pa-6">
         <div class="d-sm-flex align-center justify-space-between pt-sm-2">
-            <v-card-title class="text-h5 pt-sm-2 pb-7">Report Coronavirus Cases by Contries</v-card-title>
+            <v-card-title class="text-h5 pt-sm-2 pb-7">Schedule Coronavirus Cases of 2023 by Contries</v-card-title>
             <!-- <v-btn @click="filterOneMonth">Filter 1 Month</v-btn> -->
             <div class="d-sm-flex align-center justify-space-between pt-sm-2">
 
@@ -221,7 +168,7 @@ const formatDate = (date: string) => {
                     </td>
                     <td>
                     
-                        <h6 class="text-body-1 text-muted font-weight-medium text-center"> {{formatDate(item.timeline) }}</h6>
+                        <h6 class="text-h6 text-subtitle-1 font-weight-bold text-center "> {{formatDate(item.date) }}</h6>
                     
                   </td>
                     <td>

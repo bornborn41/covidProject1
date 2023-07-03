@@ -1,58 +1,87 @@
 <script setup lang="ts">
-
 import { ref, computed } from 'vue';
-import axios from 'axios';
-import { CovidData,fetchCovidData } from '@/services/covidService';
+import axios from "axios";
+import { fetchHistoricalAll,} from '@/server/apiFetch'
+import { transformHistoricalAll } from '@/data/dashboard/dashboardData';
+import type { historicalAllType } from '@/types/dashboard/index';
 
-
-const data = ref<CovidData[]>([]);
-const filteredData = ref<CovidData[]>([]);
+const data = ref<historicalAllType[] | null>([]);
+const filteredData = ref<historicalAllType[]>([]);
 const selectedYear = ref<string>('2023');
 const selectedMonth = ref<string>('January');
-
-const fetchData = async () => {
+const isLoading = ref(true);
+const tableColumns = [
+    { field: 'id', header: 'ID' },
+    { field: 'datetime', header: 'Datetime' },
+    { field: 'cases', header: 'Toltal Cases' },
+    { field: 'deaths', header: 'Toltal Deaths' },
+    { field: 'recovered', header: 'Toltal Recovered' },
+   
+]
+onMounted(async () => {
   try {
-    const response = await fetchCovidData()
-    const historicalData = response['cases'];
+  const historicalAllResponse = await fetchHistoricalAll();
+  const historicalAllCofigURL = historicalAllResponse.config.url;
+  const response = await axios.get(historicalAllCofigURL+'/all/?lastdays=all');
+  const historicalAllData = response.data
+  const historicalData = historicalAllData['cases'];
+  const dataItems: historicalAllType[] = [];
 
-    const dataItems: CovidData[] = [];
-
-    for (const date in historicalData) {
-      const cases = historicalData[date];
-      const deaths = response['deaths'][date];
-      const recovered = response['recovered'][date];
-      // const date = new Date(date).toUTCString();
-      dataItems.push({ date, cases, deaths, recovered });
-      // console.log(date);
-      
-    }
-
-    data.value = dataItems;
-    filteredData.value = dataItems;
-    // console.log(dataItems);
+  for (const date in historicalData) {
+    const cases = historicalData[date];
+    const deaths = historicalAllData['deaths'][date];
+    const recovered = historicalAllData['recovered'][date];
+    const dates = new Date(date).getTime();
+    dataItems.push({ dates, cases, deaths, recovered });
+    // console.log(date);
     
-  } catch (error) {
-    console.error('Error fetching COVID-19 data:', error);
   }
-};
-console.log(data.value);
 
-fetchData();
+  data.value = dataItems;
+  filteredData.value = dataItems;
+  
+
+  } catch (error) {
+    console.error('Error fetching Total COVID-19 data:', error);
+  }finally {
+    isLoading.value = false;
+  }
+
+});
+
+
+// console.log("data.value",data.value);
+// console.log(filteredData );
+ 
+function test(){
+  console.log("uniqueYears",data.value);
+  const all = data.value
+  for (const item of all) {
+    const itemYear = new Date(item.dates).getFullYear().toString();
+    console.log(itemYear);
+    
+    // years.add(itemYear);
+  }
+}
+
 
 const uniqueYears = computed(() => {
-      const years = new Set<string>();
-      for (const item of data.value) {
-        const itemYear = new Date(item.date).getFullYear().toString();
-        years.add(itemYear);
-      }
-      return Array.from(years);
-    });
+  const years = new Set<string>();
+  // console.log("uniqueYears",data.value);
+  const all = data.value
+  for (const item of all) {
+    const itemYear = new Date(item.dates).getFullYear().toString();
+    years.add(itemYear);
+  }
+  return Array.from(years);
+});
 
 const uniqueMonths = computed(() => {
   const months = new Set<string>();
-  for (const item of data.value) {
-    const itemYear = new Date(item.date).getFullYear().toString();
-    const itemMonth = new Date(item.date).toLocaleString('en-US', { month: 'long' });
+  const all = data.value
+  for (const item of all) {
+    const itemYear = new Date(item.dates).getFullYear().toString();
+    const itemMonth = new Date(item.dates).toLocaleString('en-US', { month: 'long' });
     if (itemYear === selectedYear.value) {
       months.add(itemMonth);
     }
@@ -61,8 +90,8 @@ const uniqueMonths = computed(() => {
 });
 const filterByYearMonth = () => {
   filteredData.value = data.value.filter(item => {
-    const itemYear = new Date(item.date).getFullYear().toString();
-    const itemMonth = new Date(item.date).toLocaleString('en-US', { month: 'long' });
+    const itemYear = new Date(item.dates).getFullYear().toString();
+    const itemMonth = new Date(item.dates).toLocaleString('en-US', { month: 'long' });
     return itemYear === selectedYear.value && itemMonth === selectedMonth.value;
   });
 };
@@ -80,18 +109,18 @@ const formatDate = (date: string) => {
         <v-card-item class="pa-6">
         <div class="d-sm-flex align-center justify-space-between pt-sm-2">
             <v-card-title class="text-h5 pt-sm-2 pb-7">All Coronavirus Cases</v-card-title>
-            <!-- <v-btn @click="filterOneMonth">Filter 1 Month</v-btn> -->
+            <!-- <v-btn @click="test()">Test</v-btn> -->
            
-       
+      
     <div class="d-sm-flex align-center justify-space-between">
-      <v-select 
+       <v-select 
             v-model="selectedMonth"
             :items= uniqueMonths
             :on-click:append?="filterByYearMonth()"
             variant="outlined"
             density="compact"
           ></v-select>
-     <v-select 
+    <v-select 
             v-model="selectedYear"
             :items= uniqueYears
             :on-click:append?="filterByYearMonth()"
@@ -105,11 +134,11 @@ const formatDate = (date: string) => {
         <v-table class="month-table">
             <thead>
                 <tr>
-                  <th class="text-subtitle-1 font-weight-bold text-right">#</th>
-                  <th class="text-subtitle-1 font-weight-bold text-center">Datetime</th>
+                  <th v-for="(item,index) in tableColumns" :key="item.header" class="text-subtitle-1 font-weight-bold text-center">{{item.header}}</th>
+                  <!-- <th class="text-subtitle-1 font-weight-bold text-center">Datetime</th>
                     <th class="text-subtitle-1 font-weight-bold text-center">Total Cases</th>
                     <th class="text-subtitle-1 font-weight-bold text-center">Total Deaths</th>
-                    <th class="text-subtitle-1 font-weight-bold text-center">Total Recovered</th>
+                    <th class="text-subtitle-1 font-weight-bold text-center">Total Recovered</th> -->
                     
                 </tr>
             </thead>
@@ -117,25 +146,36 @@ const formatDate = (date: string) => {
                 <tr v-for="data,item in filteredData" :key="data.date" class="month-item">
                   
                   <td>
-                         <h6 class="text-h6 text-subtitle-1 font-weight-bold text-right">
+                    <h6 v-if="isLoading"  class="text-h6 text-subtitle-1 font-weight-bold text-center">
+
+                      Loading...
+                    </h6>
+                         <h6 v-else class="text-h6 text-subtitle-1 font-weight-bold text-center">
 
                            {{item+1}}
                           </h6>
                     </td>
                     <td>
-                         <h6 class="text-h6 text-subtitle-1 font-weight-bold text-center">
+                      <h6 v-if="isLoading"   class="text-h6 text-subtitle-1 font-weight-bold text-center">
 
-                          {{ formatDate(data.date) }}
+                        Loading...
+                        </h6>
+                         <h6  v-else class="text-h6 text-subtitle-1 font-weight-bold text-center">
+
+                          {{ formatDate(data.dates) }}
                           </h6>
                     </td>
                     <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium text-center">{{ data.cases.toLocaleString("en-US")  }}</h6>
+                      <h6 v-if="isLoading" class="text-body-1 text-muted font-weight-medium text-center">Loading...</h6>
+                        <h6 v-else  class="text-body-1 text-muted font-weight-medium text-center">{{ data.cases.toLocaleString("en-US")  }}</h6>
                     </td>
                     <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium text-center">{{ data.deaths.toLocaleString("en-US")  }}</h6>
+                      <h6 v-if="isLoading"  class="text-body-1 text-muted font-weight-medium text-center">Loading...</h6>
+                        <h6 v-else class="text-body-1 text-muted font-weight-medium text-center">{{ data.deaths.toLocaleString("en-US")  }}</h6>
                     </td>
                     <td>
-                        <h6 class="text-body-1 text-muted font-weight-medium text-center">{{ data.recovered.toLocaleString("en-US")  }}</h6>
+                      <h6 v-if="isLoading" class="text-body-1 text-muted font-weight-medium text-center">Loading...</h6>
+                        <h6 v-else class="text-body-1 text-muted font-weight-medium text-center">{{ data.recovered.toLocaleString("en-US")  }}</h6>
                     </td>
               
                     

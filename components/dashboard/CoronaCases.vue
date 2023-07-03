@@ -1,36 +1,23 @@
 <script setup lang="ts">
 import { ref,onMounted ,computed} from "vue";
-import { useTheme } from "vuetify";
-import { fetchTotalCovidData ,fetchHistoricalAll,} from '@/server/apiFetch'
+import { fetchTotalCovidData } from '@/server/apiFetch'
 import { totalCovidType } from '@/types/dashboard/index'
-import { transformTotalCovidData, transformHistoricalAll } from '@/data/dashboard/dashboardData';
-import axios from "axios";
 import LayoutFullChartMiniCases from '@/components/layout/full/chart/MiniCases.vue';
 
-/* Interface TotalCovidData { */
-  interface TotalCovid {
-  cases: number;
-  deaths: number;
-  recovered: number;
-}
+const data = ref<totalCovidType | null>(null);
+const isLoading = ref(true);
 
-const theme = useTheme();
-const primary = theme.current.value.colors.primary;
-const secondary = theme.current.value.colors.secondary;
-const coronaCasesData = ref<any>([]);
-console.log(coronaCasesData);
-
+// Fetch data when the component is mounted
 onMounted(async () => {
   try {
-  const totalCovidData = await fetchTotalCovidData();
-  const transformed = transformTotalCovidData(totalCovidData);
-  coronaCasesData.value = transformed
-  
+    const totalCovidData = await fetchTotalCovidData();
+    data.value = totalCovidData 
   } catch (error) {
-    console.error('Error fetching Total COVID-19 data:', error);
+    console.error('Error fetching data:', error);
+  } finally {
+    isLoading.value = false;
   }
-
-});
+})
 
 
 </script>
@@ -49,17 +36,21 @@ onMounted(async () => {
       </div>
       <v-row>
         <v-col cols="12">
-          <div v-for="data in coronaCasesData" :key="data.cases" class="mt-2">
+          <div class="mt-2">
             <div  >
               
-                 <h2 class="text-h2"><UsersIcon size="30"  />{{data.cases.toLocaleString('en')}}</h2>
+              <h2 v-if="isLoading" class="text-h2"><UsersIcon size="30"  />Loading...</h2>
+              <h2 v-else class="text-h2"><UsersIcon size="30"  />{{data?.cases.toLocaleString('en')}}</h2>
             </div>
             <div class="mt-2">
               <v-avatar class="bg-lighterror text-accent ml-2" size="25" >
                 <ArrowDownLeftIcon size="20" />
               </v-avatar>
-              <span class="text-subtitle-1 ml-2  font-weight-bold">
-                {{data.todayCases.toLocaleString('en')}}
+              <span v-if="isLoading"  class="text-subtitle-1 ml-2  font-weight-bold">
+                Loading...
+              </span>
+              <span v-else class="text-subtitle-1 ml-2  font-weight-bold">
+                {{data?.todayCases.toLocaleString('en')}}
               </span>
               <span class="text-subtitle-1 text-muted ml-2">of Today Cases</span>
             </div>

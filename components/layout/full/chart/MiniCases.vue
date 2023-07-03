@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { ref,onMounted ,computed} from "vue";
 import { useTheme } from "vuetify";
-import { fetchTotalCovidData ,fetchHistoricalAll,} from '@/server/apiFetch'
-import {  transformTotalCovidData, transformHistoricalAll } from '@/data/dashboard/dashboardData';
+import { fetchHistoricalAll,} from '@/server/apiFetch'
+import {  transformHistoricalAll } from '@/data/dashboard/dashboardData';
 import axios from "axios";
 
 const theme = useTheme();
 const primary = theme.current.value.colors.primary;
 const secondary = theme.current.value.colors.secondary;
-
-const chartFilter = ref<any>([]);
 const chartSeries = ref<any>([]);
 
-// console.log(coronaCasesData);
 /* Chart */
 const chartOptions = ref<any>({
   chart: {
@@ -71,13 +68,13 @@ const chartOptions = ref<any>({
 onMounted(async () => {
   try {
   
-  const historicalAllResponse = await fetchHistoricalAll();
-  const historicalAllCofigURL = historicalAllResponse.config.url;
-  const response = await axios.get(historicalAllCofigURL+'/all');
-  const chartCasesData =  await response.data
+  const chartCasesRes = await fetchHistoricalAll();
+  const chartCasesCofigURL = chartCasesRes.config.url;
+  const response = await axios.get(chartCasesCofigURL+'/all');
+  const chartCasesData = await response.data
   const seriestransformed = transformHistoricalAll(chartCasesData);
-  const series = Object.values(seriestransformed[0]).map((item,index) => {
-    return [item.timeline,item.data]
+  const series = Object.values(seriestransformed[0]).map((item) => {
+    return [item.date,item.data]
   })
   chartSeries.value = [
   {
@@ -91,7 +88,6 @@ onMounted(async () => {
   }
 
 });
-
 
 </script>
 <template>

@@ -74,8 +74,8 @@ async function fetchData() {
     console.error('Error fetching historical data:', error);
   }
 }
-console.log(continents);
-console.log(tableRows);
+// console.log(continents);
+// console.log(tableRows);
 const uniqueContinent = computed(() => {
    
     const continent = new Set<string>();
@@ -93,10 +93,10 @@ const uniqueContinent = computed(() => {
   
 });
 const filterByContinent = () => {
-    console.log(selectContinent.value);
+    // console.log(selectContinent.value);
     
     if (selectContinent.value == "ALL"){
-        console.log("12346");
+        // console.log("12346");
         tableRows.value = filteredTableRows.value
     }else{
 
@@ -107,14 +107,7 @@ const filterByContinent = () => {
     });
        
     }
-//    
-//         return tableRows.value 
-//     }else{
-//     tableRows.value = filteredTableRows.value.filter(item => {
-//     const itemContinent = item.continent
-//     return itemContinent === selectContinent.value;
-//   });
-// }
+
 };
 
 function test(){
@@ -149,16 +142,7 @@ function test(){
             <thead>
                 <tr>
                     <th  v-for="(item,index) in tableColumns" :key="item.header" class="text-subtitle-1 font-weight-bold">{{item.header}}</th>
-                    <!-- <th class="text-subtitle-1 font-weight-bold">Continent</th>
-                    <th class="text-subtitle-1 font-weight-bold">Population</th>
-                    <th class="text-subtitle-1 font-weight-bold">Total Cases</th>
-                    <th class="text-subtitle-1 font-weight-bold">New Cases</th>
-                    <th class="text-subtitle-1 font-weight-bold">Total Deaths</th>
-                    <th class="text-subtitle-1 font-weight-bold">New Deaths</th>
-                    <th class="text-subtitle-1 font-weight-bold">Total Recovered</th>
-                    <th class="text-subtitle-1 font-weight-bold">New Recovered</th>
-                    <th class="text-subtitle-1 font-weight-bold">Active Cases</th>
-                    <th class="text-subtitle-1 font-weight-bold">Serious Critical</th> -->
+      
                 </tr>
             </thead>
             <tbody>
