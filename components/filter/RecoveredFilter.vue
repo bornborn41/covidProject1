@@ -251,16 +251,14 @@ const formatDate = (date: string) => {
   
 </script>
 <template>
-  <v-card elevation="10" class="withbg">
-    <v-card-item>
-      <div class="d-flex align-center justify-space-between pt-sm-2">
-        <v-card-title class="text-h4">Coronavirus Filter of 2023 by Contries</v-card-title>
-        <!-- <v-card-title class="text-h5">Recovered</v-card-title> -->
-                        <!-- <v-btn @click="test()" >TEST</v-btn> -->
+  <v-card elevation="10" class="">
+      <v-card-item class="pa-6">
+      <div class="d-sm-flex align-center justify-space-between pt-sm-2">
+          <v-card-title class="text-h5 pt-sm-2 pb-7">Coronavirus Filter of 2023 by Contries</v-card-title>
+          <!-- <v-btn @click="filterOneMonth">Filter 1 Month</v-btn> -->
+          <div class="d-sm-flex align-center justify-space-between pt-sm-2">
 
-            <div class="d-sm-flex align-center justify-space-between pt-sm-2">
-
-    <v-select 
+            <v-select 
           v-model="selectedCountries"
           :items= uniqueCountries
           :on-click:append="filterByCountriesProvinces()"
@@ -281,25 +279,19 @@ const formatDate = (date: string) => {
         ></v-select>
 
     </div>
-    </div>
-      </div>
-      <v-row>
-        <v-col cols="12">
-          <div class="mt-2">
-            <!-- <v-btn 
-            @click="TestF()"
-            >Ttest
-            </v-btn> -->
-            <apexchart 
+
+</div>
+  </div>
+     
+
+      <div class="mt-2">
+
+        <apexchart 
             :options="chartOptions" 
             :series="chartsSeries" 
             type="area" 
             height="400"></apexchart>
           </div>
-          
-        </v-col>
-      </v-row>
-    </v-card-item>
-    
+      </v-card-item>
   </v-card>
 </template>
