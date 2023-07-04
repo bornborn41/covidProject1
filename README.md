@@ -4,8 +4,8 @@
 
 ## Demo
 
-![vCard Desktop Demo](./website-demo-image/desktop1.png "Desktop Demo1")
-![vCard Desktop Demo](./website-demo-image/desktop2.png "Desktop Demo2")
+![vCard Desktop Demo](./website-demo-image/covidDesktop/Project.gif "Desktop Demo")
+![vCard Moblie Demo](./website-demo-image/covidMobile/Project.gif "Moblie Demo")
 
 ### Clone to local
 
