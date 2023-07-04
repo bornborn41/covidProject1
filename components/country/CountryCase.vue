@@ -119,9 +119,9 @@ function test(){
 
 </script>
 <template>
-    <v-col cols="12" md="12">
-            <UiParentCard title="Icons"> 
-                <v-card elevation="10" class="">
+
+   
+       <v-card elevation="10" class="withbg">
         <v-card-item class="pa-6">
         <div class="d-sm-flex align-center justify-space-between pt-sm-2">
             <v-card-title class="text-h5 pt-sm-2 pb-7">Report Coronavirus Cases by Countries</v-card-title>
@@ -130,6 +130,9 @@ function test(){
           <v-select
             v-model="selectContinent"
             :items="uniqueContinent"
+            bg-color = "#DCE775"
+            base-color = "#BA68C8"
+            color="black"
             :on-click:append?="filterByContinent()"
             variant="outlined"
             density="compact"
@@ -216,7 +219,6 @@ function test(){
     
         
         </v-card-item>
-    </v-card>
-            </UiParentCard>
-        </v-col>
+
+        </v-card>
 </template>

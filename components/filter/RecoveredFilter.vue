@@ -257,7 +257,7 @@ const formatDate = (date: string) => {
           <v-card-title class="text-h5 pt-sm-2 pb-7">Coronavirus Filter of 2023 by Contries</v-card-title>
           <!-- <v-btn @click="filterOneMonth">Filter 1 Month</v-btn> -->
           <div class="d-sm-flex align-center justify-space-between pt-sm-2">
-
+<!-- 
             <v-select 
           v-model="selectedCountries"
           :items= uniqueCountries
@@ -278,7 +278,7 @@ const formatDate = (date: string) => {
           :active-color= "primary"
         ></v-select>
 
-    </div>
+    </div> -->
 
 </div>
   </div>

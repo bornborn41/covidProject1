@@ -310,8 +310,8 @@ function filterChart(duration: string) {
 </script>
 
 <template>
-  <v-card elevation="10" class="withbg">
-    <v-card-item>
+ 
+    
       <div class="d-flex align-center justify-space-between pt-sm-2">
         <v-card-title class="text-h4">Overview Total Coronavirus Cases Filters</v-card-title>
 
@@ -352,7 +352,12 @@ function filterChart(duration: string) {
           @click="filterChart('all')">
           All
         </v-btn>
-    
+
+
+ </div>
+</v-col>
+      </v-row>
+          
     <apexchart 
     :ref="chart"
     :options="chartOptions" 
@@ -361,12 +366,6 @@ function filterChart(duration: string) {
     height="500"
     width="100%"
     ></apexchart> 
-
- </div>
-</v-col>
-      </v-row>
-  </v-card-item>
-  <!-- :v-if="chartSeries.value[0].data.length0 === 1143" -->
-  </v-card>
+   
 </template>
 

@@ -37,7 +37,8 @@ console.log(tableRows);
 
 </script>
 <template>
-    <v-card elevation="10" class="">
+   <div class="mb-2">
+      <v-card elevation="10" class="withbg">
         <v-card-item class="pa-6">
         <div class="d-sm-flex align-center justify-space-between pt-sm-2">
             <v-card-title class="text-h5 pt-sm-2 pb-7">Report Coronavirus Cases by Continent</v-card-title>
@@ -107,4 +108,5 @@ console.log(tableRows);
         </v-table>
         </v-card-item>
     </v-card>
+    </div>
 </template>

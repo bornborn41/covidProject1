@@ -15,6 +15,9 @@ export async function fetchTotalCovidData() {
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
+    if (error.code === "ERR_NETWORK"){
+      history.go(0);
+    }
   } 
    
 }
@@ -25,6 +28,11 @@ export async function fetchHistoricalAll(){
     return response;
   } catch (error) {
     console.error('Error fetching HistoricalAll data:', error);
+    console.log(error.code);
+    if (error.code === "ERR_NETWORK"){
+      history.go(0);
+    }
+    
   } 
 }
 

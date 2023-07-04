@@ -85,6 +85,10 @@ onMounted(async () => {
 
   } catch (error) {
     console.error('Error fetching Total COVID-19 data:', error);
+    if (error.code === "ERR_NETWORK"){
+      history.go(0);
+    }
+    
   }
 
 });

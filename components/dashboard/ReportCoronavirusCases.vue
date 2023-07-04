@@ -117,6 +117,9 @@ const formatDate = (date: string) => {
             v-model="selectedMonth"
             :items= uniqueMonths
             :on-click:append?="filterByYearMonth()"
+            bg-color = "#DCE775"
+            base-color = "#BA68C8"
+            color="black"
             variant="outlined"
             density="compact"
           ></v-select>
@@ -124,6 +127,9 @@ const formatDate = (date: string) => {
             v-model="selectedYear"
             :items= uniqueYears
             :on-click:append?="filterByYearMonth()"
+            bg-color = "#FFE0B2"
+            base-color = "#BA68C8"
+            color="black"
             variant="outlined"
             density="compact"
           ></v-select>

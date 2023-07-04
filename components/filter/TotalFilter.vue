@@ -109,25 +109,33 @@ const formatDate = (date: string) => {
 };
 </script>
 <template>
-    <v-card elevation="10" class="">
+    <v-card>
         <v-card-item class="pa-6">
         <div class="d-sm-flex align-center justify-space-between pt-sm-2">
             <v-card-title class="text-h5 pt-sm-2 pb-7">Schedule Coronavirus Cases of 2023 by Contries</v-card-title>
             <!-- <v-btn @click="filterOneMonth">Filter 1 Month</v-btn> -->
             <div class="d-sm-flex align-center justify-space-between pt-sm-2">
-
+              <div>
       <v-select 
             v-model="selectedCountries"
             :items= uniqueCountries
             :on-click:append="filterByCountriesProvinces()"
+            bg-color = "#DCE775"
+            base-color = "#BA68C8"
+            color="black"
             variant="solo"
             density="compact"
             :active-color= "primary"
 
           ></v-select>
-  <div v-if="uniqueProvinces.length > 0">
+    </div>
+    <div>
      <v-select 
             v-model="selectedProvinces"
+            v-if="uniqueProvinces.length > 0"
+            bg-color = "#FFCCBC"
+            base-color = "#FFCCBC"
+            color="#ECEFF1"
             :label="Provinces"
             :on-click:append="filterByCountriesProvinces()"
             :items= uniqueProvinces
@@ -135,12 +143,12 @@ const formatDate = (date: string) => {
             density="compact"
             :active-color= "primary"
           ></v-select>
-
+</div>
   </div>
     </div>
        
   
-        </div>
+        
         <div>
 
           <v-table class="month-table">

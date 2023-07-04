@@ -13,20 +13,25 @@ useHead({
         <v-col cols="12">
             <v-row>
                 <!-- CoronaCases DeathsCases  RecoveredCases-->
-                <v-col cols="12" lg="12">
+                <!-- <v-col cols="12" lg="12">
                     <div class="mb-2">
                         <CasesFilter />
                     </div>
+                </v-col> -->
                     <!-- <div class="mb-2">
                         <DeathFilter />
                     </div> -->
+                    <!-- <v-col cols="12" lg="12">
                     <div class="mb-2">
                         <RecoveredFilter />
                     </div>
-                </v-col>
+                </v-col> -->
                 <!-- Total Cases -->
+                
                 <v-col cols="12" lg="12">
+                    <div class="mb-2">
                     <TotalFilter />
+                </div>
                 </v-col>
                 
                 <!-- Report Coronavirus Cases -->

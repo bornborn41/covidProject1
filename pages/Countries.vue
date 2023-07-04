@@ -10,11 +10,15 @@ useHead({
 <template>
     <!-- Report Coronavirus Cases -->
     <v-col cols="12" md="12" lg="12">
+        <div class="mb-2">
         <ReportContinent />
+        </div>
     </v-col>
-    <v-row>
+    <v-col cols="12" md="12" lg="12">
+        <div class="mb-2">
         <CountryCase />
-    </v-row> 
+        </div>
+    </v-col>
     <v-col class="text-center mt-2" onclick="topFunction()">
         
             <p class="text-muted">on Top <v-avatar class="bg-lighterror text-accent ml-2" size="25" >
