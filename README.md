@@ -5,7 +5,7 @@
 ## Demo
 Moblie Demo             |  Desktop Demo
 :-------------------------:|:-------------------------:
-![vCard Moblie Demo](./website-demo-image/covidMobile/Project.gif "Moblie Demo")  |  ![vCard Desktop Demo](./website-demo-image/covidDesktop/Project.gif "Desktop Demo"))
+![vCard Moblie Demo](./website-demo-image/covidMobile/Project.gif "Moblie Demo")  |  ![vCard Desktop Demo](./website-demo-image/covidDesktop/Project.gif "Desktop Demo")
 ### Clone to local
 
 ```bash
