@@ -3,10 +3,9 @@
 > 💚 A Better Nuxt 3 starter template
 
 ## Demo
-
-![vCard Desktop Demo](./website-demo-image/covidDesktop/Project.gif "Desktop Demo")
-![vCard Moblie Demo](./website-demo-image/covidMobile/Project.gif "Moblie Demo")
-
+Desktop Demo             |  Moblie Demo
+:-------------------------:|:-------------------------:
+![vCard Moblie Demo](./website-demo-image/covidMobile/Project.gif "Moblie Demo")  |  ![vCard Desktop Demo](./website-demo-image/covidDesktop/Project.gif "Desktop Demo"))
 ### Clone to local
 
 ```bash
